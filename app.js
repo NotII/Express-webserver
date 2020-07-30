@@ -65,6 +65,34 @@ app.get("/v1/sites", (req, res) => {
       fs.createReadStream(path).pipe(res);
     }
   }
+ if(req.query.music === "main"){
+   const path = "./music/main.mp3";
+   const stat = fs.statSync(path);
+   const fileSize = stat.size;
+   const range = req.headers.range;
+   if (range) {
+     const parts = range.replace(/bytes=/, "").split("-");
+     const start = parseInt(parts[0], 10);
+     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+     const chunksize = end - start + 1;
+     const file = fs.createReadStream(path, { start, end });
+     const head = {
+       "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+       "Accept-Ranges": "bytes",
+       "Content-Length": chunksize,
+       "Content-Type": "audio/mpeg",
+     };
+     res.writeHead(206, head);
+     file.pipe(res);
+   } else {
+     const head = {
+       "Content-Length": fileSize,
+       "Content-Type": "audio/mpeg",
+     };
+     res.writeHead(200, head);
+     fs.createReadStream(path).pipe(res);
+   }
+ }
 });
 app.get("/api/v1/action/:action", (req, res) => {
   if (req.hostname === "api.shinobu.host") {
@@ -135,15 +163,15 @@ app.get("/api/v1/lyrics", (req, res) => {
       `https://lyrics-api.powercord.dev/lyrics?input=${req.query.song}`,
       function (error, response, body) {
         var obj = JSON.parse(body);
-          res.send(
-            `{ "took" : "${obj.took}ms", "artist": "${
-              obj.data[0].artist
-            }", "name": "${
-              obj.data[0].name
-            }", "data" : [{ "lyrics": ${JSON.stringify(
-              obj.data[0].lyrics
-            )} } ], "search_score": "${obj.data[0].search_score}" }`
-          );
+        res.send(
+          `{ "took" : "${obj.took}ms", "artist": "${
+            obj.data[0].artist
+          }", "name": "${
+            obj.data[0].name
+          }", "data" : [{ "lyrics": ${JSON.stringify(
+            obj.data[0].lyrics
+          )} } ], "search_score": "${obj.data[0].search_score}" }`
+        );
       }
     );
   } else {

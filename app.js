@@ -12,7 +12,7 @@ app.use(express.static('./actions'))
 // --------------------------------------------- \\
 app.get("/", (req, res) => {
     if (req.hostname === "api.shinobu.host") {
-        res.send("Localhost");
+        res.send("Shinobu");
     } else {
         var file = fs.readFile(
             "./rape.horse.html",
@@ -69,7 +69,7 @@ app.get("/v1/sites", (req, res) => {
     }
 });
 app.get("/api/v1/action/:action", (req, res) => {
-    if(req.hostname === "api.localhost") {
+    if(req.hostname === "api.shinobu.host") {
         var files = fs.readdirSync("actions/" + req.params.action);
         var file = files[Math.floor(Math.random() * files.length)];
         var url =
@@ -80,8 +80,8 @@ app.get("/api/v1/action/:action", (req, res) => {
     }
 });
 
-app.get("/media/:action/:image", (req, res) => {
-    if(req.hostname === "media.localhost") {
+app.get("/actions/:action/:image", (req, res) => {
+    if(req.hostname === "media.shinobu.host") {
         fs.readFile( `./actions/${req.params.action}/${req.params.image}`, function( err, data ) {
             if ( err ) {
                 res.send("404 Not Found")
@@ -155,3 +155,5 @@ app.get("/api/v1/lyrics", (req, res) => {
 });
 
 app.listen(80);
+const https = require('https');
+https.createServer(app).listen(3000);

@@ -73,7 +73,7 @@ app.get("/api/v1/action/:action", (req, res) => {
         var files = fs.readdirSync("actions/" + req.params.action);
         var file = files[Math.floor(Math.random() * files.length)];
         var url =
-            `https:///media.shinobu.host/actions/` + req.params.action + `/${file}`;
+            `https://media.shinobu.host/actions/` + req.params.action + `/${file}`;
         res.send(`${url}`);
     } else {
         res.send("405 Not Allowed")

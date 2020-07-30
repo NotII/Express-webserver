@@ -1,6 +1,5 @@
 // --------------------------------------------- \\
 const express = require("express");
-const cors = require("cors");
 const app = express();
 const owofy = require("owofy");
 const responseTime = require("response-time");
@@ -8,7 +7,6 @@ app.use(responseTime());
 var fs = require("fs");
 var request = require("request");
 app.use(express.static("./actions"));
-
 // --------------------------------------------- \\
 app.get("/", (req, res) => {
   if (req.hostname === "api.shinobu.host") {
@@ -137,9 +135,6 @@ app.get("/api/v1/lyrics", (req, res) => {
       `https://lyrics-api.powercord.dev/lyrics?input=${req.query.song}`,
       function (error, response, body) {
         var obj = JSON.parse(body);
-        if (!obj.data[0] || obj.data[0].artist == "Downsyde" || !res.query) {
-          res.send("Unable to find any data.");
-        } else {
           res.send(
             `{ "took" : "${obj.took}ms", "artist": "${
               obj.data[0].artist
@@ -149,7 +144,6 @@ app.get("/api/v1/lyrics", (req, res) => {
               obj.data[0].lyrics
             )} } ], "search_score": "${obj.data[0].search_score}" }`
           );
-        }
       }
     );
   } else {

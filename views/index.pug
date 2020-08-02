@@ -1,0 +1,24 @@
+html
+  head
+    link(rel='stylesheet', href='/static/css/styles.css')
+    include meta.pug
+  body
+    //- h3 
+    //-   form(action='/up.php?w=true', method='post', enctype='multipart/form-data')
+    //-       input#upload(type='file', name="sharex")
+    //-       a#upload_link(href='') Upload your photo
+    //-       button(type="submit") submit
+    include ./hud.pug
+    h4 Uploading from this page coming soon, please use ShareX
+    div#particles-js  
+//- script.
+//-   $(function(){
+//-       $("#upload_link").on('click', function(e){
+//-           e.preventDefault();
+//-           $("#upload:hidden").trigger('click');
+//-       });
+//-   });
+
+script(src='/static/js/particles.min.js')
+script(src="https://code.jquery.com/jquery-3.4.1.min.js")
+include particles.pug

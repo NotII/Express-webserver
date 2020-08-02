@@ -5,6 +5,7 @@ const hidePoweredBy = require("hide-powered-by");
 const validator = require("validator");
 const express = require("express");
 const app = express();
+app.use(hidePoweredBy({ setTo: "Pepsi Webserver v1" }));
 const owofy = require("owofy");
 const responseTime = require("response-time");
 app.use(responseTime());
@@ -14,7 +15,7 @@ app.use(express.static("./actions"));
 // --------------------------------------------- \\
 app.get("/", (req, res) => {
   if (req.hostname === "api.shinobu.host") {
-    res.send("Shinobu");
+    res.send("Shinobu - API");
   } else {
     var file = fs.readFile(
       "./rape.horse.html",
@@ -262,8 +263,6 @@ function handleUpload(req, res) {
     res.send("No file uploaded.");
   }
 }
-
-app.use(hidePoweredBy({ setTo: "Pepsi" }));
 
 app.listen(80);
 const https = require("https");

@@ -12,9 +12,14 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "express-fileupload": "^1.1.9",
+    "gulp": "^4.0.2",
+    "hide-powered-by": "^1.1.0",
     "https": "^1.0.0",
     "owofy": "^1.0.2",
+    "path": "^0.12.7",
     "request": "^2.88.2",
-    "response-time": "^2.3.2"
+    "response-time": "^2.3.2",
+    "validator": "^13.1.1"
   }
 }

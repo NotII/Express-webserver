@@ -1,4 +1,8 @@
 // --------------------------------------------- \\
+var fileUpload = require("express-fileupload");
+const path = require("path");
+const hidePoweredBy = require("hide-powered-by");
+const validator = require("validator");
 const express = require("express");
 const app = express();
 const owofy = require("owofy");
@@ -67,6 +71,62 @@ app.get("/v1/sites", (req, res) => {
   }
   if (req.query.music === "main") {
     const path = "./music/main.mp3";
+    const stat = fs.statSync(path);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = end - start + 1;
+      const file = fs.createReadStream(path, { start, end });
+      const head = {
+        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": chunksize,
+        "Content-Type": "audio/mpeg",
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        "Content-Length": fileSize,
+        "Content-Type": "audio/mpeg",
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(path).pipe(res);
+    }
+  }
+  if(req.query.warning === "nsfw"){
+    const path = "./images/nsfw.gif";
+    const stat = fs.statSync(path);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = end - start + 1;
+      const file = fs.createReadStream(path, { start, end });
+      const head = {
+        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": chunksize,
+        "Content-Type": "audio/mpeg",
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        "Content-Length": fileSize,
+        "Content-Type": "image/gif",
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(path).pipe(res);
+    }
+  }
+  if(req.query.music === "russia"){
+    const path = "./music/anthem.mp3";
     const stat = fs.statSync(path);
     const fileSize = stat.size;
     const range = req.headers.range;
@@ -178,7 +238,33 @@ app.get("/api/v1/lyrics", (req, res) => {
     res.send("405 Not Allowed");
   }
 });
+function handleUpload(req, res) {
+  if (req.files) {
+    if (req.files.sharex) {
+
+      const extension = req.files.sharex.name.split('.')[1] || '';
+
+      const id = genId(config.id.length, true, extension);
+
+      if (config.blacklistedExtensions.includes(extension)) {
+        return res.status(405).send("You cannot upload a file of that extension");
+      } else {
+        req.files.sharex.mv(__dirname + path.sep + 'images' + path.sep + id + '.' + extension);
+        res.send('http://' + req.hostname + '/' + id + '.' + extension);
+      }
+    } else {
+      res.send("No file named sharex was uploaded.");
+    }
+  } else {
+    res.send("No file uploaded.");
+  }
+}
+
+
+
+
+app.use(hidePoweredBy({ setTo: "Pepsi" }));
 
 app.listen(80);
 const https = require("https");
-https.createServer(app).listen(3000);
+https.createServer(app).listen(443);

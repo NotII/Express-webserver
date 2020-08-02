@@ -97,7 +97,7 @@ app.get("/v1/sites", (req, res) => {
       fs.createReadStream(path).pipe(res);
     }
   }
-  if(req.query.warning === "nsfw"){
+  if (req.query.warning === "nsfw") {
     const path = "./images/nsfw.gif";
     const stat = fs.statSync(path);
     const fileSize = stat.size;
@@ -125,7 +125,7 @@ app.get("/v1/sites", (req, res) => {
       fs.createReadStream(path).pipe(res);
     }
   }
-  if(req.query.music === "russia"){
+  if (req.query.music === "russia") {
     const path = "./music/anthem.mp3";
     const stat = fs.statSync(path);
     const fileSize = stat.size;
@@ -241,16 +241,19 @@ app.get("/api/v1/lyrics", (req, res) => {
 function handleUpload(req, res) {
   if (req.files) {
     if (req.files.sharex) {
-
-      const extension = req.files.sharex.name.split('.')[1] || '';
+      const extension = req.files.sharex.name.split(".")[1] || "";
 
       const id = genId(config.id.length, true, extension);
 
       if (config.blacklistedExtensions.includes(extension)) {
-        return res.status(405).send("You cannot upload a file of that extension");
+        return res
+          .status(405)
+          .send("You cannot upload a file of that extension");
       } else {
-        req.files.sharex.mv(__dirname + path.sep + 'images' + path.sep + id + '.' + extension);
-        res.send('http://' + req.hostname + '/' + id + '.' + extension);
+        req.files.sharex.mv(
+          __dirname + path.sep + "images" + path.sep + id + "." + extension
+        );
+        res.send("http://" + req.hostname + "/" + id + "." + extension);
       }
     } else {
       res.send("No file named sharex was uploaded.");
@@ -259,9 +262,6 @@ function handleUpload(req, res) {
     res.send("No file uploaded.");
   }
 }
-
-
-
 
 app.use(hidePoweredBy({ setTo: "Pepsi" }));
 

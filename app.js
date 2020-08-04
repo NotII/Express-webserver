@@ -226,15 +226,19 @@ app.get("/api/v1/lyrics", (req, res) => {
       `https://lyrics-api.powercord.dev/lyrics?input=${req.query.song}`,
       function (error, response, body) {
         var obj = JSON.parse(body);
-        res.send(
-          `{ "took" : "${obj.took}ms", "artist": "${
-            obj.data[0].artist
-          }", "name": "${
-            obj.data[0].name
-          }", "data" : [{ "lyrics": ${JSON.stringify(
-            obj.data[0].lyrics
-          )} } ], "search_score": "${obj.data[0].search_score}" }`
-        );
+        if (!obj.data[0].lyrics) {
+          return res.send("Unable to find lyrics");
+        } else {
+          res.send(
+            `{ "took" : "${obj.took}ms", "artist": "${
+              obj.data[0].artist
+            }", "name": "${
+              obj.data[0].name
+            }", "data" : [{ "lyrics": ${JSON.stringify(
+              obj.data[0].lyrics
+            )} } ], "search_score": "${obj.data[0].search_score}" }`
+          );
+        }
       }
     );
   } else {
@@ -268,17 +272,14 @@ function handleUpload(req, res) {
 
 function genId(length, isFile, ext) {
   var id = "";
-  const charset = config.charset; //Characters that can be used to generate ids
+  const charset = config.charset;
 
   for (var i = 0; i < length; i++)
     id += charset.charAt(Math.floor(Math.random() * charset.length));
 
-  //Check if id is blacklisted
   if (config.blacklistedIds.includes(id)) return genId(length);
 
-  //Checks based on generating id for files or urls
   if (isFile) {
-    //Check if file already exists
     fs.exists(
       __dirname + path.sep + "images" + path.sep + id + "." + ext,
       (exists) => {
@@ -286,7 +287,6 @@ function genId(length, isFile, ext) {
       }
     );
   } else {
-    //Check if id already exists if generating for url shortener
     mysqlConnection.query(
       "SELECT * FROM ids WHERE id = ?",
       [id],
@@ -354,11 +354,14 @@ app.get("/sharex", (req, res) => {
   "Version": "12.4.1",
   "DestinationType": "ImageUploader, TextUploader, FileUploader",
   "RequestMethod": "POST",
-  "RequestURL": "http://${req.host}/up.php",
+  "RequestURL": "http://${req.hostname}/up.php",
   "Body": "MultipartFormData",
   "FileFormName": "sharex"
   }`;
-  res.set("Content-Disposition", "attachment;filename=" + req.host + ".sxcu");
+  res.set(
+    "Content-Disposition",
+    "attachment;filename=" + req.hostname + ".sxcu"
+  );
   res.set("Content-Type", "application/octet-stream");
   res.send(_config);
 });

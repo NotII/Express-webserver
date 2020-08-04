@@ -222,13 +222,16 @@ app.get("/api/v1/kill", (req, res) => {
 });
 app.get("/api/v1/lyrics", (req, res) => {
   if (req.hostname === "api.shinobu.host") {
-    request(
-      `https://lyrics-api.powercord.dev/lyrics?input=${req.query.song}`,
-      function (error, response, body) {
-        var obj = JSON.parse(body);
-        if (!obj.data[0].lyrics) {
-          return res.send("Unable to find lyrics");
-        } else {
+    if (Object.keys(req.query).length === 0) {
+      res.send("405 Not allowed");
+    } else {
+      request(
+        `https://lyrics-api.powercord.dev/lyrics?input=${req.query.song}`,
+        function (error, response, body) {
+          var obj = JSON.parse(body);
+          if (!obj.data[0]) {
+            return res.send("Unable to find lyrics");
+          }
           res.send(
             `{ "took" : "${obj.took}ms", "artist": "${
               obj.data[0].artist
@@ -239,8 +242,8 @@ app.get("/api/v1/lyrics", (req, res) => {
             )} } ], "search_score": "${obj.data[0].search_score}" }`
           );
         }
-      }
-    );
+      );
+    }
   } else {
     res.send("405 Not Allowed");
   }
@@ -260,7 +263,7 @@ function handleUpload(req, res) {
         req.files.sharex.mv(
           __dirname + path.sep + "images" + path.sep + id + "." + extension
         );
-        res.send("http://" + req.hostname + "/" + id + "." + extension);
+        res.send("https://" + req.hostname + "/" + id + "." + extension);
       }
     } else {
       res.send("No file named sharex was uploaded.");

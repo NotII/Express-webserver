@@ -15,8 +15,28 @@ const config = require("./config");
 const messages = config.responses.messages;
 app.use(express.static("./actions"));
 // --------------------------------------------- \\
+app.get("/auth/selfbot", (req, res) => {
+  if (Object.keys(req.query).length === 0) {
+    res.send("405 Not allowed");
+  } else {
+      var whitelist = fs.readFile("whitelist.txt", { encoding: "utf-8"}, function (err, data) {
+          if(data.includes(req.query.hwid)){
+            res.send("authenticated")
+          } else {
+            res.send("hwid not in database")
+          }
+      })
+}
+})
+
 app.get("/", (req, res) => {
+  if(req.hostname === "rape.ovh"){
+    var file = fs.readFile("mexydox.txt", {encoding: "utf-8"}, function (err, data) {
+      res.send(data)
+    })
+  } else {
   if (req.hostname === "api.shinobu.host") {
+    console.log(req.connection.remoteAddress);
     res.send("Shinobu - API");
   } else {
     var file = fs.readFile(
@@ -29,6 +49,7 @@ app.get("/", (req, res) => {
       }
     );
   }
+}
 });
 app.get("/v1/sites", (req, res) => {
   if (Object.keys(req.query).length === 0) {
@@ -156,6 +177,34 @@ app.get("/v1/sites", (req, res) => {
       fs.createReadStream(path).pipe(res);
     }
   }
+  if(req.query.music === "mexydox"){
+    const path = "./music/earrape.mp3";
+    const stat = fs.statSync(path);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = end - start + 1;
+      const file = fs.createReadStream(path, { start, end });
+      const head = {
+        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": chunksize,
+        "Content-Type": "audio/mpeg",
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        "Content-Length": fileSize,
+        "Content-Type": "audio/mpeg",
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(path).pipe(res);
+    }
+  }
 });
 app.get("/api/v1/action/:action", (req, res) => {
   if (req.hostname === "api.shinobu.host") {
@@ -222,7 +271,7 @@ app.get("/api/v1/kill", (req, res) => {
 });
 app.get("/api/v1/lyrics", (req, res) => {
   if (req.hostname === "api.shinobu.host") {
-    if (Object.keys(req.query).length === 0) {
+    if (Object.keys(req.query.song).length === 0) {
       res.send("405 Not allowed");
     } else {
       request(
@@ -414,7 +463,6 @@ app.get("/:image", (req, res) => {
     return res.end();
   });
 });
-
-app.listen(80);
+app.listen(80, '138.201.143.202');
 const https = require("https");
 https.createServer(app).listen(443);

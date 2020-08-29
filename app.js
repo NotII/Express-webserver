@@ -17,7 +17,6 @@ const config = require("./config");
 const messages = config.responses.messages;
 app.use(express.static("./actions"));
 var sharex = [
-  "depressive.club",
     "66.11.123.46",
     "rape.horse",
     "rape.works",

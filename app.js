@@ -17,7 +17,6 @@ const config = require("./config");
 const messages = config.responses.messages;
 app.use(express.static("./actions"));
 var sharex = [
-  "66.11.123.46",
   "rape.horse",
   "rape.works",
   "nibba.wtf",
@@ -57,14 +56,6 @@ app.get("/auth/selfbot", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  if (req.hostname === "rape.ovh") {
-    var file = fs.readFile("mexydox.txt", { encoding: "utf-8" }, function (
-      err,
-      data
-    ) {
-      res.send(data);
-    });
-  } else {
     if (req.hostname === "api.shinobu.host") {
       console.log(req.connection.remoteAddress);
       res.send("Shinobu - API");
